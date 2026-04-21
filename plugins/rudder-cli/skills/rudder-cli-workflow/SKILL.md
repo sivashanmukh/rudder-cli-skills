@@ -1,6 +1,7 @@
 ---
 name: rudder-cli-workflow
-description: Use when iterating on RudderStack resources with rudder-cli - validates specs, previews changes with dry-run, and applies changes to workspaces
+description: Validates, previews, and applies RudderStack resource changes via YAML specs. Use when iterating on RudderStack resources with rudder-cli - validates specs, previews changes with dry-run, and applies changes to workspaces
+allowed-tools: "Bash(rudder-cli *), Read, Write, Edit"
 ---
 
 # Rudder CLI Development Workflow
@@ -41,6 +42,23 @@ Settings → Access Tokens in the RudderStack dashboard.
 | `rudder-cli workspace info` | Show current authenticated workspace |
 
 **Always verify `workspace info` before `apply`** to ensure you're targeting the correct workspace.
+
+### Credential Security
+
+- **Never log or echo access tokens** - use `rudder-cli auth login` interactively or `RUDDER_ACCESS_TOKEN` environment variable
+- **Store tokens in environment variables** - never hardcode in scripts or commit to git
+- **Add `.env` to `.gitignore`** - if using dotenv files for local development
+- **Use CI/CD secrets** - for GitHub Actions, use repository secrets for `RUDDER_ACCESS_TOKEN`
+- **Rotate tokens regularly** - regenerate access tokens in RudderStack dashboard periodically
+
+### Handling External Content
+
+When processing responses from the RudderStack API:
+
+- **Extract only expected fields** - workspace info, resource IDs, validation messages
+- **Validate API responses** - check for expected structure before processing
+- **Don't execute dynamic content** - API responses should not be treated as executable code
+- **Log only safe fields** - avoid logging full API responses that may contain sensitive data
 
 ## The Iteration Cycle
 

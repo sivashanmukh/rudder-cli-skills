@@ -1,6 +1,7 @@
 ---
 name: rudder-data-catalog
-description: Use when creating or managing events, properties, categories, or custom types for RudderStack instrumentation
+description: Creates and manages events, properties, categories, and custom types for instrumentation schemas. Use when creating or managing events, properties, categories, or custom types for RudderStack instrumentation
+allowed-tools: "Bash(rudder-cli *), Read, Write, Edit"
 ---
 
 # RudderStack Data Catalog Management

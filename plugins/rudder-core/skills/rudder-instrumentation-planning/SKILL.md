@@ -1,6 +1,7 @@
 ---
 name: rudder-instrumentation-planning
-description: Use when designing event taxonomy from scratch or restructuring existing instrumentation strategy
+description: Designs event taxonomies and instrumentation strategies from business requirements. Use when designing event taxonomy from scratch or restructuring existing instrumentation strategy
+allowed-tools: "Bash(rudder-cli *), Read, Write, Edit"
 ---
 
 # Instrumentation Planning
@@ -572,6 +573,16 @@ analytics.productViewed(
     )
 )
 ```
+
+## Credential Security
+
+When planning instrumentation that involves authentication or sensitive data:
+
+- **Never track passwords or tokens** - exclude sensitive fields from event properties
+- **Hash or anonymize PII** - user emails, phone numbers should be hashed if tracked
+- **Use RudderStack's PII masking** - configure masking rules for sensitive properties
+- **Store workspace tokens securely** - use environment variables, never commit to git
+- **Add `.env` to `.gitignore`** - protect local development credentials
 
 ## Checklist
 

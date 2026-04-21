@@ -1,6 +1,7 @@
 ---
 name: rudder-typer-workflow
-description: Use when generating type-safe event tracking code (Swift/Kotlin) from tracking plans using RudderTyper
+description: Generates type-safe SDKs (Swift/Kotlin) from tracking plans with compile-time validation. Use when generating type-safe event tracking code from tracking plans using RudderTyper
+allowed-tools: "Bash(rudder-cli *), Read, Write, Edit"
 ---
 
 # RudderTyper Workflow
@@ -334,8 +335,8 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Install rudder-cli
-        run: |
-          curl -sSL https://cli.rudderstack.com/install.sh | bash
+        # See https://www.rudderstack.com/docs/cli/ for installation options
+        uses: rudderstack/setup-rudder-cli@v1
 
       - name: Validate tracking plan
         run: rudder-cli validate -l ./tracking-plan

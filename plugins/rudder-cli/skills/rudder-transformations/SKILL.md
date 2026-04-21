@@ -1,6 +1,7 @@
 ---
 name: rudder-transformations
-description: Use when creating, editing, or managing RudderStack transformations and transformation libraries using the Rudder CLI
+description: Creates and manages RudderStack transformations and libraries with local testing. Use when creating, editing, or managing RudderStack transformations and transformation libraries using the Rudder CLI
+allowed-tools: "Bash(rudder-cli *), Read, Write, Edit"
 ---
 
 # RudderStack Transformations with Rudder CLI
@@ -369,3 +370,21 @@ The CLI handles publish order automatically:
 3. Transformations (depend on libraries)
 
 All published atomically - no partial updates.
+
+## Credential Security
+
+- **Never hardcode API keys in transformation code** - use workspace credentials/secrets instead
+- **Store workspace tokens in environment variables** - never commit `RUDDER_ACCESS_TOKEN` to git
+- **Add `.env` to `.gitignore`** - if using dotenv files for local development
+- **Use CI/CD secrets** - for automated deployments, use repository secrets
+- **Reference secrets via workspace credentials** - transformation code can access configured secrets securely
+
+## Handling External Content
+
+When processing events in transformations:
+
+- **Validate event structure** - check for expected fields before processing
+- **Sanitize string inputs** - escape or validate user-generated content in event properties
+- **Don't eval dynamic content** - never use `eval()` or `Function()` on event data
+- **Extract only expected fields** - access known properties, don't iterate over unknown keys
+- **Log safely** - avoid logging full event payloads that may contain PII

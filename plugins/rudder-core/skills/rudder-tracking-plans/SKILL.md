@@ -1,6 +1,7 @@
 ---
 name: rudder-tracking-plans
-description: Use when creating or managing tracking plans that define which events are allowed for a source
+description: Creates and manages tracking plans that validate events against schema contracts. Use when creating or managing tracking plans that define which events are allowed for a source
+allowed-tools: "Bash(rudder-cli *), Read, Write, Edit"
 ---
 
 # RudderStack Tracking Plans Management

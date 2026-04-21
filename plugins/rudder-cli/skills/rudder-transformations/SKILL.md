@@ -1,5 +1,5 @@
 ---
-name: rudderstack-transformations
+name: rudder-transformations
 description: Use when creating, editing, or managing RudderStack transformations and transformation libraries using the Rudder CLI
 ---
 

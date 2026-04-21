@@ -5,28 +5,74 @@ description: Use when connecting Claude or another AI/LLM agent to rudder-mcp-se
 
 # RudderStack MCP Server Workflow
 
-TODO: Cover installing and running `rudder-mcp-server`, configuring auth, wiring it to Claude Code (or other MCP clients), the tool catalog it exposes, and representative workflows.
+`rudder-mcp-server` exposes a RudderStack workspace as an MCP endpoint so AI agents (Claude Desktop, Claude Code, or any MCP client) can inspect and mutate workspace resources via tool calls.
 
 ## When to use
 
-TODO
+The user wants an AI agent to drive RudderStack, or mentions `rudder-mcp-server`, MCP + RudderStack, or configuring tool access for a RudderStack workspace.
 
 ## Preflight
 
-TODO: environment variables, access token, server connectivity check.
+Before running any workflow, verify:
 
-## Tool catalog
+- [ ] Server is built and reachable. Default transport is **HTTP on port 8080**. Start locally with `make run` from the `rudder-mcp-server/` repo (brings up Postgres + server via `docker compose up --build`).
+- [ ] OAuth credentials are set (for the `/mcp` endpoint):
+  - `MCP_SERVER_OAUTH_CLIENT_CLIENT_ID`
+  - `MCP_SERVER_OAUTH_CLIENT_CLIENT_SECRET`
+  - `MCP_SERVER_OAUTH_CLIENT_ENDPOINT_AUTH_URL`
+  - `MCP_SERVER_OAUTH_CLIENT_ENDPOINT_TOKEN_URL`
+- [ ] Database configured:
+  - `MCP_SERVER_DATABASE_URL` (Postgres connection string)
+  - `MCP_SERVER_DATABASE_ENCRYPTION_KEY` (`openssl rand -hex 16`)
+- [ ] For bearer / basic auth flows, use `/bearer-auth-mcp` or `/basic-auth-mcp` instead of `/mcp`.
 
-TODO: summarize the tools `rudder-mcp-server` exposes, grouped by domain (workspace admin, data catalog, sources, destinations, transformations, RETL, tracking plans, live events).
+## Client configuration
+
+Claude Desktop / Claude Code `mcpServers` block (HTTP transport via `mcp-remote`):
+
+```json
+{
+  "mcpServers": {
+    "rudderstack": {
+      "command": "npx",
+      "args": ["-y", "mcp-remote", "http://localhost:8080/mcp"]
+    }
+  }
+}
+```
+
+Replace `http://localhost:8080/mcp` with a public URL (e.g. an ngrok tunnel) for remote clients.
+
+## Tool catalog (50+ tools, grouped)
+
+**Workspace admin:** `user_details`, `user_switch_workspace`, `get_workspace_settings`, `list_connections`.
+
+**Sources:** `list_sources`, `get_source`, `get_source_definitions`, `get_source_event_schemas`, `get_source_event_metrics`, `get_source_event_names_similarity`, `get_source_event_properties`, `get_source_tracking_plans_and_versions`, `get_source_tracking_plan_event_metrics`, `get_source_tracking_plan_event_violations`, `get_retl_source_syncs`.
+
+**Destinations:** `list_destinations`, `get_destination`, `get_destination_definitions`, `get_destination_event_metrics`, `get_destination_latency_metrics`, `get_destinations_errors`, `connect_transformation_destination`.
+
+**Transformations:** `list_transformations`, `get_transformation`, `get_transformation_event_metrics`, `get_transformation_latency_metrics`, `upsert_transformation`, `transformation_test_new`, `transformation_test_existing`, `list_rudderstack_transformation_libraries`, `list_transformation_libraries`, `get_transformation_library`, `sample_transformations`.
+
+**Data & events:** `list_data_catalog_events`, `list_data_catalog_properties`, `list_tracking_plans`, `list_tracking_plan_events`, `get_live_events`, `sql_agent_query`.
+
+**Docs & admin (admin-gated):** `ask_docs`, `search_docs`, `admin_search_workspaces`, `admin_search_organizations`, `admin_get_plans`, `admin_query_customer_calls`, `admin_fetch_notion_page`, `admin_search_notion_pages`.
+
+Admin tools only surface when the server is started with `MCP_SERVER_ADMIN_ENABLED=true`.
 
 ## Common workflows
 
-TODO: example prompt → MCP tool call sequences.
+- **"What's broken in my sources?"** → `list_sources` → `get_source_event_metrics` / `get_source_tracking_plan_event_violations` per source.
+- **"Write me a transformation and deploy it."** → `sample_transformations` (find similar) → `upsert_transformation` → `transformation_test_new`.
+- **"Live-debug this connection."** → `get_live_events` filtered by source/destination; correlate with `get_destinations_errors`.
 
 ## Don't do this
 
-TODO: tools that mutate shared state; when to prefer rudder-cli over MCP.
+- Don't call `upsert_transformation` or `connect_transformation_destination` without confirming the target with the user — they mutate shared workspace state.
+- Don't assume admin tools are available; if they don't appear in the tool list, the server is running without admin mode.
 
-## References
+## Gotchas
 
-TODO: link to `@rudder-mcp-server/` once drafted content lands.
+- **Session persistence bug on mcp-go ≥ v0.42.0** for bearer-auth endpoints: sessions fail with "Invalid session ID" across HTTP requests. Workaround: pin `mcp-go` at v0.41.1 or earlier.
+- Prefer **rudder-cli** for large-scale authoring of tracking plans / data catalogs (git-diffable YAML); use MCP for exploration, debugging, and targeted edits.
+
+> **[DRAFT]** First-cut drawn from `@rudder-mcp-server/`. Tool list reflects the current registration; verify against `cmd/server` before publishing.

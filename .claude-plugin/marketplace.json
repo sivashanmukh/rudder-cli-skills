@@ -1,0 +1,43 @@
+{
+  "name": "rudder-agent-skills",
+  "owner": {
+    "name": "RudderStack",
+    "email": "siva.shanmukh@gmail.com"
+  },
+  "metadata": {
+    "description": "Skills for working with RudderStack via CLI, MCP server, and Terraform.",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "rudder-core",
+      "source": "./plugins/rudder-core",
+      "description": "Cross-tool RudderStack domain knowledge: data catalog, tracking plans, instrumentation planning and debugging.",
+      "version": "1.0.0",
+      "author": {
+        "name": "RudderStack"
+      },
+      "homepage": "https://www.rudderstack.com/",
+      "repository": "https://github.com/rudderlabs/rudder-agent-skills",
+      "license": "MIT",
+      "category": "devtools",
+      "keywords": ["rudderstack", "instrumentation", "tracking-plan", "data-catalog"],
+      "tags": ["rudderstack", "domain"]
+    },
+    {
+      "name": "rudder-cli",
+      "source": "./plugins/rudder-cli",
+      "description": "Workflows for driving the rudder-cli and rudder-typer CLIs: validate, dry-run, apply, import, transformations.",
+      "version": "1.0.0",
+      "author": {
+        "name": "RudderStack"
+      },
+      "homepage": "https://github.com/rudderlabs/rudder-iac",
+      "repository": "https://github.com/rudderlabs/rudder-agent-skills",
+      "license": "MIT",
+      "category": "devtools",
+      "keywords": ["rudderstack", "rudder-cli", "rudder-typer", "cli", "devtools"],
+      "tags": ["rudderstack", "cli"]
+    }
+  ]
+}

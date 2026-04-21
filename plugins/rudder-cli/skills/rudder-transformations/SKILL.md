@@ -1,5 +1,5 @@
 ---
-name: rudderstack-transformations
+name: rudder-transformations
 description: Use when creating, editing, or managing RudderStack transformations and transformation libraries using the Rudder CLI
 ---
 
@@ -8,6 +8,63 @@ description: Use when creating, editing, or managing RudderStack transformations
 ## Overview
 
 RudderStack transformations allow real-time event manipulation using JavaScript or Python. Libraries provide reusable code shared across transformations. Both are managed as code using YAML specs and the Rudder CLI.
+
+## Recommended Workflow
+
+Follow this loop for every change — authoring a new transformation or library, or editing existing code. Testing locally with fixtures is the key step that distinguishes transformations work from other CLI workflows.
+
+```dot
+digraph transformations_workflow {
+    rankdir=TB;
+    "rudder-cli workspace info" [shape=box];
+    "Authenticated?" [shape=diamond];
+    "rudder-cli auth login" [shape=box];
+    "Edit YAML / JS / fixtures" [shape=box];
+    "rudder-cli validate -l ./" [shape=box];
+    "Validation errors?" [shape=diamond];
+    "Fix errors" [shape=box];
+    "rudder-cli transformations test --all -l ./" [shape=box];
+    "Tests pass?" [shape=diamond];
+    "Fix code or expected output" [shape=box];
+    "rudder-cli apply --dry-run -l ./" [shape=box];
+    "Diff matches intent?" [shape=diamond];
+    "Adjust specs" [shape=box];
+    "rudder-cli apply -l ./" [shape=box];
+    "Done" [shape=doublecircle];
+
+    "rudder-cli workspace info" -> "Authenticated?";
+    "Authenticated?" -> "rudder-cli auth login" [label="no"];
+    "rudder-cli auth login" -> "rudder-cli workspace info";
+    "Authenticated?" -> "Edit YAML / JS / fixtures" [label="yes"];
+    "Edit YAML / JS / fixtures" -> "rudder-cli validate -l ./";
+    "rudder-cli validate -l ./" -> "Validation errors?";
+    "Validation errors?" -> "Fix errors" [label="yes"];
+    "Fix errors" -> "rudder-cli validate -l ./";
+    "Validation errors?" -> "rudder-cli transformations test --all -l ./" [label="no"];
+    "rudder-cli transformations test --all -l ./" -> "Tests pass?";
+    "Tests pass?" -> "Fix code or expected output" [label="no"];
+    "Fix code or expected output" -> "rudder-cli validate -l ./";
+    "Tests pass?" -> "rudder-cli apply --dry-run -l ./" [label="yes"];
+    "rudder-cli apply --dry-run -l ./" -> "Diff matches intent?";
+    "Diff matches intent?" -> "Adjust specs" [label="no"];
+    "Adjust specs" -> "rudder-cli validate -l ./";
+    "Diff matches intent?" -> "rudder-cli apply -l ./" [label="yes"];
+    "rudder-cli apply -l ./" -> "Done";
+}
+```
+
+**Steps:**
+1. **Verify auth** — `rudder-cli workspace info`; re-auth with `rudder-cli auth login` if needed.
+2. **Validate** — `rudder-cli validate -l ./` catches YAML schema errors, missing files, camelCase `import_name` violations.
+3. **Test locally** — `rudder-cli transformations test --all -l ./` runs each transformation against its `tests/input/*.json` fixtures and diffs against `tests/output/*.json`. Use `--modified` for faster iteration or pass a specific transformation id.
+4. **Dry run** — `rudder-cli apply --dry-run -l ./` shows the diff that would be applied. Check for unexpected deletions.
+5. **Apply** — `rudder-cli apply -l ./` publishes libraries and transformations atomically (correct order handled by the CLI).
+
+For the broader validate → apply cycle that applies to all CLI-managed resources, see the `rudder-cli-workflow` skill. This skill specializes it with the local-test step.
+
+### Worked example
+
+A complete end-to-end project — library, transformation, fixtures, and README — lives at `examples/transformations-workflow/` in this repo. It includes a ported Base64 library (`base64-lib`), a sample transformation that uses it, and input/output test fixtures. Use it as a scaffold for new transformations or as a reference for `tests/` structure.
 
 ## Directory Structure
 

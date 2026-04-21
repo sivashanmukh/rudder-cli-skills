@@ -7,6 +7,42 @@ description: Use when creating or managing events, properties, categories, or cu
 
 This skill teaches how to create and manage the building blocks of instrumentation: **events**, **properties**, **categories**, and **custom types**.
 
+## Recommended Workflow
+
+When adding or editing catalog resources, author bottom-up (dependencies first) then validate and apply. The referencing order is strict — an event can't reference a property URN until that property exists.
+
+```dot
+digraph data_catalog_workflow {
+    rankdir=TB;
+    "1. Custom types (reusable shapes)" [shape=box];
+    "2. Properties (vocabulary)" [shape=box];
+    "3. Categories (grouping)" [shape=box];
+    "4. Events (reference all of the above)" [shape=box];
+    "rudder-cli validate -l ./" [shape=box];
+    "Errors?" [shape=diamond];
+    "Fix references / URNs / type config" [shape=box];
+    "rudder-cli apply --dry-run -l ./" [shape=box];
+    "Diff matches intent?" [shape=diamond];
+    "rudder-cli apply -l ./" [shape=box];
+    "Done" [shape=doublecircle];
+
+    "1. Custom types (reusable shapes)" -> "2. Properties (vocabulary)";
+    "2. Properties (vocabulary)" -> "3. Categories (grouping)";
+    "3. Categories (grouping)" -> "4. Events (reference all of the above)";
+    "4. Events (reference all of the above)" -> "rudder-cli validate -l ./";
+    "rudder-cli validate -l ./" -> "Errors?";
+    "Errors?" -> "Fix references / URNs / type config" [label="yes"];
+    "Fix references / URNs / type config" -> "rudder-cli validate -l ./";
+    "Errors?" -> "rudder-cli apply --dry-run -l ./" [label="no"];
+    "rudder-cli apply --dry-run -l ./" -> "Diff matches intent?";
+    "Diff matches intent?" -> "Fix references / URNs / type config" [label="no"];
+    "Diff matches intent?" -> "rudder-cli apply -l ./" [label="yes"];
+    "rudder-cli apply -l ./" -> "Done";
+}
+```
+
+**Why bottom-up:** properties reference custom types; events reference properties, categories, and custom types. Creating in the reverse order means every intermediate `validate` fails on missing references. For the validate → dry-run → apply details (error formats, diff reading, auth prereqs), see the `rudder-cli-workflow` skill.
+
 ## Core Concepts
 
 | Concept | Purpose | Example |

@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+# pre-push — run the skills repo reviewer before every push.
+#
+# Enable once per clone:
+#   git config core.hooksPath .githooks
+#
+# Bypass once (emergencies only):
+#   git push --no-verify
+#
+# Configure via env:
+#   SKILLS_REVIEW_STRICT=1        treat warnings as errors
+#   SKILLS_REVIEW_ONLY=E006,W004  run only specific rubric codes
+#   SKILLS_REVIEW_SCRIPT=<path>   override script location
+
+set -euo pipefail
+
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+SCRIPT="${SKILLS_REVIEW_SCRIPT:-${REPO_ROOT}/scripts/review-skills.py}"
+
+if [[ ! -f "$SCRIPT" ]]; then
+    echo "pre-push: review-skills.py not found at ${SCRIPT} — skipping." >&2
+    exit 0
+fi
+
+if ! command -v python3 >/dev/null 2>&1; then
+    echo "pre-push: python3 not on PATH — skipping skills review." >&2
+    exit 0
+fi
+
+ARGS=()
+[[ "${SKILLS_REVIEW_STRICT:-0}" == "1" ]] && ARGS+=(--strict)
+[[ -n "${SKILLS_REVIEW_ONLY:-}" ]] && ARGS+=(--only "${SKILLS_REVIEW_ONLY}")
+
+echo "pre-push: running skills review…"
+if ! python3 "$SCRIPT" "$REPO_ROOT" "${ARGS[@]}"; then
+    cat >&2 <<'EOF'
+
+pre-push: skills review failed.
+  - fix the errors above, or
+  - re-run with  SKILLS_REVIEW_ONLY=<codes>  to narrow scope, or
+  - bypass once with  git push --no-verify  (use sparingly).
+
+EOF
+    exit 1
+fi

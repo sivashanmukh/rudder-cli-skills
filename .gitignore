@@ -46,5 +46,8 @@ tmp/
 temp/
 *.tmp
 
-# Superpowers design docs and plans (local working files)
-docs/superpowers/
+# Documentation (local working files, not published)
+docs/
+
+# Internal examples (RudderStack-specific, not for public distribution)
+**/references/internal-*

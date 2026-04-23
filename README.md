@@ -94,6 +94,7 @@ Pin to a release by appending `@v1.0.0` to the marketplace slug. Update later wi
 | `rudder-tracking-plans` | Creating tracking plans to group events for specific sources |
 | `rudder-instrumentation-planning` | Designing event taxonomy from scratch or restructuring |
 | `rudder-instrumentation-debugging` | Fixing validation errors, schema issues, or instrumentation problems |
+| `rudder-environment-check` | Checking prerequisites and setup status |
 
 ### `rudder-cli`
 
@@ -103,18 +104,21 @@ Pin to a release by appending `@v1.0.0` to the marketplace slug. Update later wi
 | `rudder-import-and-evolve` | Importing existing RudderStack resources to CLI management |
 | `rudder-typer-workflow` | Generating type-safe SDKs (Swift/Kotlin) from tracking plans |
 | `rudder-transformations` | Creating, editing, or managing transformations and libraries |
+| `rudder-cli-setup` | Installing and authenticating rudder-cli |
 
 ### `rudder-mcp`
 
 | Skill | When to use |
 |---|---|
 | `rudder-mcp-workflow` | Connecting AI/LLM agents to RudderStack via MCP server |
+| `rudder-mcp-setup` | Configuring Claude Code to connect to MCP server |
 
 ### `rudder-terraform`
 
 | Skill | When to use |
 |---|---|
 | `rudder-terraform-workflow` | Managing RudderStack resources via Terraform provider |
+| `rudder-terraform-setup` | Installing Terraform and the RudderStack provider |
 
 ## How skills work together
 

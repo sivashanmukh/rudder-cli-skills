@@ -32,7 +32,7 @@ ARGS=()
 [[ -n "${SKILLS_REVIEW_ONLY:-}" ]] && ARGS+=(--only "${SKILLS_REVIEW_ONLY}")
 
 echo "pre-push: running skills review…"
-if ! python3 "$SCRIPT" "$REPO_ROOT" "${ARGS[@]}"; then
+if ! python3 "$SCRIPT" "$REPO_ROOT" ${ARGS[@]+"${ARGS[@]}"}; then
     cat >&2 <<'EOF'
 
 pre-push: skills review failed.

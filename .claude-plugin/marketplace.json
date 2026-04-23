@@ -2,7 +2,7 @@
   "name": "rudder-agent-skills",
   "owner": {
     "name": "RudderStack",
-    "email": "siva.shanmukh@gmail.com"
+    "email": "no-reply@rudderstack.com"
   },
   "metadata": {
     "description": "Skills for working with RudderStack via CLI, MCP server, and Terraform.",

@@ -2,13 +2,6 @@
 
 Thanks for contributing. This repo is a Claude Code plugin **marketplace** — a catalog of plugins that bundle skills teaching Claude how to drive RudderStack's programmatic surfaces. The goal of every contribution is a skill that actually fires on the right user request and recommends the right command.
 
-## Ground truth
-
-Two documents drive structure and conventions. Read them before opening a PR:
-
-- [`skills.md`](../skills.md) at the repo's parent — the marketplace/plugin/skill build spec (naming rules, frontmatter limits, progressive disclosure).
-- [`docs/superpowers/specs/2026-04-20-rudder-agent-skills-marketplace-reorg-design.md`](docs/superpowers/specs/2026-04-20-rudder-agent-skills-marketplace-reorg-design.md) — the reorg design capturing the plugin split, naming, and commit conventions this repo follows.
-
 ## Where a new skill belongs
 
 The marketplace ships four plugins. A new skill goes into exactly one:
@@ -42,7 +35,7 @@ description: Use when the user asks to <verb-1>, <verb-2>, or mentions <noun-1>,
 ---
 ```
 
-Frontmatter rules (from `skills.md` §5.1):
+Frontmatter rules:
 
 - `name` must match the folder name exactly, kebab-case, ≤ 64 chars.
 - `description` ≤ 1024 chars. This is the single most important field — it's loaded into Claude's system prompt and decides when the skill auto-invokes. **Front-load trigger keywords**: the specific subcommand names, workflow verbs a user would say, and the relevant nouns.
@@ -111,7 +104,7 @@ Your PR description should include:
 
 ## Versioning & release
 
-- Plugin versions live in the **top-level `.claude-plugin/marketplace.json`**, not in individual `plugin.json` files (per `skills.md` §3 — for relative-path sources, marketplace entries win).
+- Plugin versions live in the **top-level `.claude-plugin/marketplace.json`**, not in individual `plugin.json` files.
 - Bump the relevant plugin's `version` field in `marketplace.json` when your change materially alters skill behavior. Minor content tweaks don't need a bump.
 - Tag releases (`git tag vX.Y.Z && git push --tags`) so users can pin with `@vX.Y.Z` when adding the marketplace.
 

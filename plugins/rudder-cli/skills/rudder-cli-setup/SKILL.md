@@ -1,7 +1,7 @@
 ---
 name: rudder-cli-setup
 description: Installs and authenticates rudder-cli. Use when installing rudder-cli, setting up rudder cli, rudder-cli command not found, or authenticating with RudderStack
-allowed-tools: "Bash(which, curl, chmod, uname, rudder-cli *), Read"
+allowed-tools: "Bash(which, curl, chmod, uname, rudder-cli *), Read, Write, Edit"
 ---
 
 # Rudder CLI Setup

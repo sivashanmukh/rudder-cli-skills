@@ -1,7 +1,7 @@
 ---
 name: rudder-terraform-setup
 description: Installs Terraform and configures the RudderStack provider. Use when setting up terraform for rudderstack, installing terraform-provider-rudderstack, or terraform provider not found errors
-allowed-tools: "Bash(which, terraform *, brew, uname), Read, Write, Edit"
+allowed-tools: "Bash(which, curl, terraform *, uname), Read, Write, Edit"
 ---
 
 # RudderStack Terraform Setup

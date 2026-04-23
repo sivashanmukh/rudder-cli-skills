@@ -1,7 +1,7 @@
 ---
 name: rudder-environment-check
 description: Checks RudderStack tool prerequisites and reports status. Use when checking prerequisites, setup status, what tools are missing, or before running RudderStack workflows for the first time
-allowed-tools: "Bash(which, curl, rudder-cli workspace info, terraform version, terraform providers)"
+allowed-tools: "Bash(which, curl, rudder-cli *, terraform *), Read"
 ---
 
 # RudderStack Environment Check

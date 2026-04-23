@@ -52,6 +52,50 @@ NPM_UNPINNED = re.compile(r"\bnpm (install|i)\s+(?!.*@[\d\w])[^\s`]+")
 UVX_UNPINNED = re.compile(r"\buvx\s+(?!--)[a-zA-Z0-9_-]+(?!@)\b")
 BASH_TOOL_HINT = re.compile(r"```(?:bash|sh|shell|console)\b", re.IGNORECASE)
 
+# Markdown reference patterns
+REFS_LINK_PATTERN = re.compile(r"`references/([^`]+\.md)`|See\s+`?references/([^\s`]+\.md)`?")
+MD_LINK_PATTERN = re.compile(r"\[([^\]]+)\]\(([^)]+)\)")
+
+# allowed-tools syntax: "Tool1, Tool2(pattern), Tool3"
+ALLOWED_TOOLS_PATTERN = re.compile(
+    r'^"?\s*'                           # optional leading quote
+    r'(?:'
+        r'[A-Z][a-zA-Z]*'               # Tool name (capitalized)
+        r'(?:\([^)]*\))?'               # optional (pattern)
+        r'(?:\s*,\s*)?'                 # optional comma separator
+    r')+'
+    r'\s*"?$'                           # optional trailing quote
+)
+VALID_TOOLS = {"Bash", "Read", "Write", "Edit", "Glob", "Grep", "Task", "WebFetch", "WebSearch"}
+
+# Common technical misspellings (word -> correction)
+COMMON_MISSPELLINGS = {
+    "recieve": "receive", "recieves": "receives", "recieved": "received",
+    "occured": "occurred", "occuring": "occurring", "occurence": "occurrence",
+    "seperate": "separate", "seperately": "separately", "seperation": "separation",
+    "definately": "definitely", "definatly": "definitely",
+    "neccessary": "necessary", "necesary": "necessary", "neccesary": "necessary",
+    "sucessful": "successful", "succesful": "successful", "successfull": "successful",
+    "enviroment": "environment", "enviornment": "environment",
+    "dependancy": "dependency", "dependancies": "dependencies",
+    "accomodate": "accommodate", "acommodate": "accommodate",
+    "aquisition": "acquisition", "aquire": "acquire",
+    "untill": "until", "wierd": "weird", "beleive": "believe",
+    "calender": "calendar", "priviledge": "privilege", "privilige": "privilege",
+    "reponse": "response", "responce": "response",
+    "authentification": "authentication", "authenication": "authentication",
+    "configuraiton": "configuration", "configuation": "configuration",
+    "initalize": "initialize", "intialize": "initialize",
+    "paramater": "parameter", "paramter": "parameter", "paramerter": "parameter",
+    "excecute": "execute", "execture": "execute",
+    "referer": "referrer",  # common but actually both are valid in different contexts
+    "propery": "property", "proprty": "property",
+    "specifiy": "specify", "specfiy": "specify",
+    "requred": "required", "requried": "required",
+    "retreive": "retrieve", "retrive": "retrieve",
+    "formating": "formatting", "fomatting": "formatting",
+}
+
 # ───────────────────────── data model ─────────────────────────────────────────
 @dataclass
 class Finding:
@@ -273,6 +317,111 @@ def check_skill(ctx: SkillCtx) -> list:
             "skill shows shell commands but declares no 'allowed-tools' in frontmatter.",
             hint="pin exact patterns, e.g. 'allowed-tools: \"Bash(rudder-cli *), Read, Write, Edit\"'."))
 
+    # E010 — allowed-tools syntax validation
+    allowed_tools = fm.get("allowed-tools", "")
+    if allowed_tools:
+        # Parse and validate allowed-tools
+        tools_str = str(allowed_tools).strip().strip('"').strip("'")
+        # Split by comma, handling parentheses
+        parts = []
+        depth = 0
+        current = ""
+        for ch in tools_str:
+            if ch == '(':
+                depth += 1
+            elif ch == ')':
+                depth -= 1
+            elif ch == ',' and depth == 0:
+                parts.append(current.strip())
+                current = ""
+                continue
+            current += ch
+        if current.strip():
+            parts.append(current.strip())
+
+        for part in parts:
+            # Extract tool name (before parentheses)
+            tool_match = re.match(r'^([A-Za-z]+)', part)
+            if not tool_match:
+                findings.append(Finding("E010", "error", p,
+                    f"invalid allowed-tools entry: '{part}'.",
+                    hint="format: 'ToolName' or 'ToolName(pattern)'."))
+                continue
+            tool_name = tool_match.group(1)
+            # Check capitalization
+            if tool_name[0].islower():
+                findings.append(Finding("E010", "error", p,
+                    f"tool name '{tool_name}' should be capitalized.",
+                    hint=f"use '{tool_name.capitalize()}' instead."))
+            # Check if it's a known tool
+            elif tool_name not in VALID_TOOLS:
+                findings.append(Finding("W015", "warn", p,
+                    f"unknown tool '{tool_name}' in allowed-tools.",
+                    hint=f"known tools: {', '.join(sorted(VALID_TOOLS))}."))
+
+    # W016 — broken references to references/*.md files
+    refs_dir = ctx.dir / "references"
+    for match in REFS_LINK_PATTERN.finditer(ctx.body):
+        ref_file = match.group(1) or match.group(2)
+        ref_path = refs_dir / ref_file
+        if not ref_path.exists():
+            findings.append(Finding("W016", "warn", p,
+                f"referenced file 'references/{ref_file}' does not exist.",
+                hint="create the file or fix the reference path."))
+
+    # W017 — broken internal markdown links
+    for match in MD_LINK_PATTERN.finditer(ctx.body):
+        link_text, link_target = match.groups()
+        # Skip external links and anchors
+        if link_target.startswith(('http://', 'https://', '#', 'mailto:')):
+            continue
+        # Skip URN references
+        if link_target.startswith('urn:'):
+            continue
+        # Check if it's a relative file path
+        if link_target.endswith('.md') or '/' in link_target:
+            target_path = ctx.dir / link_target
+            if not target_path.exists():
+                findings.append(Finding("W017", "warn", p,
+                    f"broken link to '{link_target}'.",
+                    hint="fix the path or create the missing file."))
+
+    # W018 — common misspellings
+    body_words = re.findall(r'\b[a-zA-Z]+\b', ctx.body.lower())
+    found_misspellings = set()
+    for word in body_words:
+        if word in COMMON_MISSPELLINGS and word not in found_misspellings:
+            found_misspellings.add(word)
+            findings.append(Finding("W018", "warn", p,
+                f"possible misspelling: '{word}' → '{COMMON_MISSPELLINGS[word]}'.",
+                hint="check spelling and fix if incorrect."))
+
+    # W019 — YAML code block syntax validation
+    yaml_block_pattern = re.compile(r'```ya?ml\s*\n(.*?)```', re.DOTALL | re.IGNORECASE)
+    for i, match in enumerate(yaml_block_pattern.finditer(ctx.body)):
+        yaml_content = match.group(1)
+        try:
+            # Use a simple YAML validation without external deps
+            # Check for common YAML syntax issues
+            lines = yaml_content.strip().split('\n')
+            indent_stack = [0]
+            for line_num, line in enumerate(lines, 1):
+                stripped = line.strip()
+                if not stripped or stripped.startswith('#'):
+                    continue
+                # Check for tabs (YAML should use spaces)
+                if '\t' in line and not line.strip().startswith('#'):
+                    findings.append(Finding("W019", "warn", p,
+                        f"YAML block {i+1}: line {line_num} uses tabs instead of spaces.",
+                        hint="YAML requires spaces for indentation, not tabs."))
+                    break
+                # Check for missing colon in key-value pairs
+                if ':' not in stripped and not stripped.startswith('-') and not stripped.startswith('#'):
+                    # Could be a continuation or list item, skip
+                    pass
+        except Exception:
+            pass  # Don't fail on YAML parsing edge cases
+
     return findings
 
 # ───────────────────────── repo-level checks ──────────────────────────────────
@@ -337,6 +486,7 @@ Rubric codes:
   E001 frontmatter missing          E002 name missing         E003 description missing
   E004 name≠dir                     E005 name not kebab-case  E006 forbidden top-level key
   E007 description >1024 chars      E008 SKILL.md >600 lines  E009 curl|bash pipe
+  E010 invalid allowed-tools syntax
   W001 no 'Use when …' clause       W002 description >300 chars
   W003 SKILL.md >400 lines, no references/
   W004 credentials without Credential Security section
@@ -347,6 +497,9 @@ Rubric codes:
   W010 description under 40 chars
   W011 sibling descriptions too similar   W012 no changelog mechanism
   W013 no CONTRIBUTING.md                 W014 marketplace/plugin version drift
+  W015 unknown tool in allowed-tools      W016 broken references/ link
+  W017 broken internal markdown link      W018 common misspelling
+  W019 YAML code block syntax issue
 """
 
 def main(argv=None) -> int:

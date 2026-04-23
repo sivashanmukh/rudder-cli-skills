@@ -1,6 +1,7 @@
 ---
 name: rudder-mcp-workflow
-description: Use when connecting Claude or another AI/LLM agent to rudder-mcp-server and managing RudderStack through MCP tool calls — setting up the server, authenticating, listing available tools, and driving workflows over catalog, sources, destinations, transformations, RETL, tracking plans, and live events. Fires on mentions of "rudder-mcp-server", "MCP server for RudderStack", MCP tools for RudderStack, or AI agents managing RudderStack.
+description: Connects AI agents to RudderStack via MCP tool calls for catalog, sources, destinations, transformations, and live events. Use when connecting Claude or another AI/LLM agent to rudder-mcp-server, managing RudderStack through MCP, or mentions of "rudder-mcp-server" or MCP tools for RudderStack.
+allowed-tools: "Read, Write, Edit"
 ---
 
 # RudderStack MCP Server Workflow
@@ -69,6 +70,13 @@ Admin tools only surface when the server is started with `MCP_SERVER_ADMIN_ENABL
 
 - Don't call `upsert_transformation` or `connect_transformation_destination` without confirming the target with the user — they mutate shared workspace state.
 - Don't assume admin tools are available; if they don't appear in the tool list, the server is running without admin mode.
+
+## Credential Security
+
+- Store all credentials (`MCP_SERVER_OAUTH_CLIENT_*`, `MCP_SERVER_DATABASE_*`) in environment variables or a secrets manager—never hardcode in config files.
+- Add `.env` to `.gitignore` if using dotenv files locally.
+- Never log or echo credential values; mask them in any debug output.
+- For production deployments, use short-lived tokens and rotate `MCP_SERVER_DATABASE_ENCRYPTION_KEY` periodically.
 
 ## Gotchas
 

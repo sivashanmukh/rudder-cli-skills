@@ -143,12 +143,18 @@ export function transformEvent(event, metadata) {
 
 ## Using with Claude Code Skills
 
-Install the skills from the parent repository to get Claude Code assistance:
+Install the skills using the Skills CLI (recommended):
+
+```bash
+npx skills add rudderlabs/rudder-agent-skills
+```
+
+Or install manually via symlinks (from this example directory):
 
 ```bash
 mkdir -p .claude/skills
-ln -s ../../skills/rudder-cli-workflow .claude/skills/
-ln -s ../../skills/rudderstack-transformations .claude/skills/
+ln -s ../../plugins/rudder-cli/skills/rudder-cli-workflow .claude/skills/
+ln -s ../../plugins/rudder-cli/skills/rudder-transformations .claude/skills/
 ```
 
 Then Claude Code can help you:

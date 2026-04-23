@@ -1,0 +1,31 @@
+name: Validate Skills
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  validate:
+    name: Review Skills
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Run skills review
+        run: python3 scripts/review-skills.py . --strict
+
+      - name: Validate plugin manifests
+        run: |
+          # Check that all JSON files are valid
+          for f in $(find . -name "*.json" -path "*/.claude-plugin/*"); do
+            echo "Validating $f"
+            python3 -c "import json; json.load(open('$f'))" || exit 1
+          done

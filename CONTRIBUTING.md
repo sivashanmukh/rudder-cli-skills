@@ -2,6 +2,21 @@
 
 Thanks for contributing. This repo is a Claude Code plugin **marketplace** — a catalog of plugins that bundle skills teaching Claude how to drive RudderStack's programmatic surfaces. The goal of every contribution is a skill that actually fires on the right user request and recommends the right command.
 
+## Getting started
+
+After cloning the repository, run the setup script to enable pre-push validation:
+
+```bash
+./scripts/setup.sh
+```
+
+This configures git hooks so `scripts/review-skills.py` runs automatically before each push, catching issues early. You can also run the linter manually:
+
+```bash
+python3 scripts/review-skills.py .          # warnings allowed
+python3 scripts/review-skills.py . --strict # warnings are errors
+```
+
 ## Where a new skill belongs
 
 The marketplace ships four plugins. A new skill goes into exactly one:

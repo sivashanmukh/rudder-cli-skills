@@ -1,6 +1,6 @@
 ---
 name: rudder-data-graphs
-description: Analyze a customer's RudderStack RETL setup and produce a validated-or-clearly-labeled-draft Data Graph YAML for the Audiences feature. Use when mapping RETL sources to entities/events, designing a Data Graph, assessing a customer's fit for Audiences, finding realistic untapped segments from existing RETL sources, or preparing demo material for a Data Graph pitch — even when they don't say "Data Graph" explicitly (e.g., "can we build audiences on top of their existing sources", "map this workspace to the new audiences model", "what segments are they missing", "turn this RETL setup into the new audiences model").
+description: Produces Data Graph YAML from RETL sources for Audiences. Use when designing Data Graphs, mapping RETL to entities/events, or assessing customer fit for Audiences.
 ---
 
 # RETL Connection Analysis & Data Graph Design

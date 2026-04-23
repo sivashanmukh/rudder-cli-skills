@@ -53,6 +53,62 @@ digraph data_catalog_workflow {
 | **Categories** | Organize events | "Ecommerce", "User Lifecycle" |
 | **Custom Types** | Reusable validation patterns | ProductType, AddressType, Currency |
 
+## Before Creating: Check Existing Catalog
+
+Before creating new events or properties, check what already exists to prevent duplicates and ensure consistency.
+
+### Why Check First?
+
+- **Prevents duplicate events** with different names ("Product Viewed" vs "ProductView")
+- **Ensures warehouse consistency** — same data, same column names
+- **Reuses existing custom types** — don't reinvent AddressType
+- **Maintains naming conventions** — follow established patterns
+
+### How to Check
+
+**Using Rudder CLI:**
+```bash
+# List existing events
+rudder-cli get events
+
+# List existing properties
+rudder-cli get properties
+
+# List custom types
+rudder-cli get custom-types
+```
+
+**Using MCP:**
+```
+Tool: list_data_catalog_events
+Search for events matching your proposed name
+
+Tool: list_data_catalog_properties
+Check if property already exists
+```
+
+### Naming Convention Validation
+
+Before proposing new resources, verify they follow conventions:
+
+| Resource | Convention | Example | Anti-Example |
+|----------|------------|---------|--------------|
+| Events | Title Case with spaces | `Product Viewed` | `productViewed`, `product_viewed` |
+| Properties | snake_case | `product_id` | `productId`, `ProductId` |
+| Categories | kebab-case | `user-lifecycle` | `userLifecycle`, `user_lifecycle` |
+| Custom Types | PascalCase | `ProductType` | `product_type`, `productType` |
+
+### Check for Similar Events
+
+If proposing "Transformation Created", search for:
+- Existing "Transformation Created"
+- Similar: "Transformation Added", "Create Transformation"
+- Related: other transformation events
+
+```bash
+rudder-cli get events | grep -i transform
+```
+
 ## Directory Structure
 
 ```
@@ -261,6 +317,75 @@ Custom types let you define reusable validation patterns:
 - **AddressType** → used by shipping_address AND billing_address
 
 Benefits: single source of truth, change in one place, cleaner event definitions.
+
+## Creating Properties from Code Types
+
+When your codebase already has domain types, derive properties from them to ensure alignment.
+
+### Enum to Property
+
+```typescript
+// Code
+enum BillingPlan {
+  FREE = 'free',
+  STARTER = 'starter',
+  GROWTH = 'growth',
+  ENTERPRISE = 'enterprise',
+}
+```
+
+```yaml
+# Property - values must match exactly
+spec:
+  name: "billing_plan"
+  type: "string"
+  config:
+    enum:
+      - "free"        # Matches BillingPlan.FREE
+      - "starter"
+      - "growth"
+      - "enterprise"
+```
+
+### String Union to Property
+
+```typescript
+// Code
+type TransformationLanguage = 'javascript' | 'python';
+```
+
+```yaml
+# Property
+spec:
+  name: "transformation_language"
+  type: "string"
+  config:
+    enum:
+      - "javascript"
+      - "python"
+```
+
+### Critical: Use Exact Values
+
+The tracking plan **must** use the exact string values from code:
+
+```typescript
+// If code uses lowercase
+enum Region {
+  US = 'us',    // lowercase
+  EU = 'eu',
+}
+```
+
+```yaml
+# YAML must match exactly
+config:
+  enum:
+    - "us"      # NOT "US" or "Us"
+    - "eu"      # NOT "EU" or "Eu"
+```
+
+For the full code-first workflow, see `rudder-code-first-instrumentation` skill.
 
 ## Validation Commands
 

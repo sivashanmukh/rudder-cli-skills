@@ -66,6 +66,108 @@ Admin tools only surface when the server is started with `MCP_SERVER_ADMIN_ENABL
 - **"Write me a transformation and deploy it."** → `sample_transformations` (find similar) → `upsert_transformation` → `transformation_test_new`.
 - **"Live-debug this connection."** → `get_live_events` filtered by source/destination; correlate with `get_destinations_errors`.
 
+## Instrumentation Verification Workflow
+
+After instrumenting events (via CLI or code), verify they reach destinations:
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                    MCP VERIFICATION WORKFLOW                         │
+└─────────────────────────────────────────────────────────────────────┘
+
+1. APPLY TRACKING PLAN
+   └── rudder-cli apply -l ./
+
+2. TRIGGER EVENTS
+   └── Run app locally, trigger the instrumented events
+
+3. VERIFY LIVE EVENTS
+   └── MCP: get_live_events (filter by source)
+   └── Check event name, properties, context
+
+4. VERIFY DESTINATION
+   └── MCP: sql_agent_query (for Snowflake)
+   └── Query for the event in warehouse
+
+5. CHECK FOR VIOLATIONS
+   └── MCP: get_source_tracking_plan_event_violations
+   └── Review any schema violations
+```
+
+### Verification Commands
+
+```
+# Check live events from source
+Tool: get_live_events
+Filter by source_id, verify event payload matches tracking plan
+
+# Query Snowflake for events
+Tool: sql_agent_query
+Query: SELECT * FROM tracks WHERE event = 'Transformation Created'
+       ORDER BY timestamp DESC LIMIT 10
+
+# Check for tracking plan violations
+Tool: get_source_tracking_plan_event_violations
+Review violations to identify schema mismatches
+```
+
+### Real Example: Verifying Audience Events
+
+```
+1. Apply tracking plan with "Audience Created" event
+2. Create an audience in the web app
+3. MCP: get_live_events → look for "Audience Created"
+4. Verify properties: audience_id, audience_name, condition_count
+5. MCP: sql_agent_query → confirm event landed in Snowflake
+```
+
+## Dev vs Prod Workspace Pattern
+
+Recommended setup for safe iteration:
+
+### Two-Workspace Setup
+
+| Workspace | Purpose | Governance |
+|-----------|---------|------------|
+| Dev | Testing, iteration | `unplannedEvents: log` |
+| Prod | Production traffic | `unplannedEvents: block` |
+
+### Workflow
+
+```
+1. Connect MCP to Dev workspace
+   └── MCP: user_switch_workspace (if needed)
+
+2. Apply changes to Dev
+   └── rudder-cli apply -l ./
+
+3. Verify events in Dev
+   └── MCP: get_live_events, sql_agent_query
+
+4. Switch to Prod workspace
+   └── MCP: user_switch_workspace
+
+5. Apply changes to Prod
+   └── rudder-cli apply -l ./
+```
+
+### Switching Workspaces via MCP
+
+```
+Tool: user_switch_workspace
+Parameter: workspace_id (the target workspace ID)
+
+# Get list of available workspaces first
+Tool: user_details
+# Returns workspaces the user has access to
+```
+
+### Why Two Workspaces?
+
+- **Safe iteration**: Test tracking plan changes without affecting production
+- **Validate events end-to-end**: Trigger events in dev, verify in dev Snowflake
+- **Catch violations early**: Schema mismatches surface in dev before prod
+
 ## Don't do this
 
 - Don't call `upsert_transformation` or `connect_transformation_destination` without confirming the target with the user — they mutate shared workspace state.

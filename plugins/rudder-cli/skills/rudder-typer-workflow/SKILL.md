@@ -31,10 +31,11 @@ RudderTyper generates native code from your tracking plan so developers:
 
 ## Supported Platforms
 
-| Platform | Language | Use Case |
-|----------|----------|----------|
-| iOS | Swift | iOS, macOS, tvOS, watchOS apps |
-| Android | Kotlin | Android apps, JVM applications |
+| Platform | Language | Status | Use Case |
+|----------|----------|--------|----------|
+| iOS | Swift | Available | iOS, macOS, tvOS, watchOS apps |
+| Android | Kotlin | Available | Android apps, JVM applications |
+| Web | TypeScript | Manual | Web apps, Node.js (see [TypeScript Type Alignment](#typescript-type-alignment-manual)) |
 
 ## Quick Start
 
@@ -389,3 +390,173 @@ rudder-cli typer generate --config path/to/ruddertyper.yml
 # Generate with verbose output
 rudder-cli typer generate --verbose
 ```
+
+---
+
+## TypeScript Type Alignment (Manual)
+
+Until automated TypeScript generation is available, manually align types with your tracking plan.
+
+### Deriving Types from Tracking Plan
+
+Given this property definition:
+
+```yaml
+# properties/product-properties.yaml
+version: "rudder/v1"
+kind: "property"
+metadata:
+  name: "properties"
+spec:
+  name: "product_category"
+  type: "string"
+  config:
+    enum:
+      - "footwear"
+      - "clothing"
+      - "accessories"
+```
+
+Create matching TypeScript:
+
+```typescript
+// src/analytics/types.ts
+
+export type ProductCategory = "footwear" | "clothing" | "accessories";
+
+export interface ProductType {
+  product_id: string;
+  product_sku: string;
+  product_name: string;
+  product_price: number;
+  product_category: ProductCategory;
+}
+
+export interface ProductViewedEvent {
+  product: ProductType;
+  page_url?: string;
+  referrer_url?: string;
+}
+
+export interface OrderCompletedEvent {
+  order_id: string;
+  order_total: number;
+  currency: string;
+  products: ProductType[];
+}
+```
+
+### Using in Instrumentation
+
+```typescript
+import { ProductType, ProductCategory, ProductViewedEvent } from './analytics/types';
+import analytics from './analytics/client';
+
+function trackProductViewed(product: ProductType, pageUrl?: string) {
+  const event: ProductViewedEvent = {
+    product,
+    page_url: pageUrl,
+  };
+
+  analytics.track('Product Viewed', event);
+}
+
+// Usage - compiler validates everything
+trackProductViewed({
+  product_id: "shoes-001",
+  product_sku: "RUN-001",
+  product_name: "Running Shoes",
+  product_price: 89.99,
+  product_category: "footwear",  // TypeScript ensures valid category
+});
+```
+
+### Compile-Time Validation
+
+TypeScript compiler catches:
+
+| Error Type | Example | Compiler Message |
+|------------|---------|------------------|
+| Wrong enum value | `product_category: "shoes"` | Type '"shoes"' is not assignable |
+| Missing required property | `{ product_name: "Test" }` | Property 'product_id' is missing |
+| Type mismatch | `product_price: "89.99"` | Type 'string' is not assignable to 'number' |
+| Typo in property name | `produt_id: "123"` | Object literal may only specify known properties |
+
+### Type Alignment Workflow
+
+```
+┌──────────────────────────────────────────────────────────────────────┐
+│                   TYPESCRIPT TYPE ALIGNMENT                          │
+└──────────────────────────────────────────────────────────────────────┘
+         │
+         ▼
+┌─────────────────┐
+│ 1. Define YAML  │ ← Properties with enums, types, constraints
+└────────┬────────┘
+         ▼
+┌─────────────────┐
+│ 2. Create TS    │ ← Mirror YAML definitions in TypeScript
+│    Types        │
+└────────┬────────┘
+         ▼
+┌─────────────────┐
+│ 3. Build App    │ ← Compiler validates alignment
+└────────┬────────┘
+         ▼
+┌─────────────────┐
+│ 4. Fix Errors   │ ← Compiler tells you what's wrong
+└────────┬────────┘
+         ▼
+┌─────────────────┐
+│ 5. Commit Both  │ ← YAML + TypeScript stay in sync
+└─────────────────┘
+```
+
+### Keeping Types in Sync
+
+When the tracking plan changes:
+
+1. Update YAML definitions
+2. Update TypeScript types to match
+3. Build app - compiler errors show what needs updating
+4. Fix instrumentation code
+5. Commit YAML + TypeScript + instrumentation together
+
+> "TypeScript for LLMs is the greatest teacher. It puts it in guardrails."
+
+---
+
+## TypeSpec for Multi-Platform (Future)
+
+Microsoft's TypeSpec can define constraints once, generate for multiple languages:
+
+```typescript
+// tracking-plan.tsp
+model ProductType {
+  product_id: string;
+  product_sku: string;
+  product_name: string;
+  product_price: float64;
+  product_category: ProductCategory;
+}
+
+enum ProductCategory {
+  footwear,
+  clothing,
+  accessories,
+}
+
+model ProductViewedEvent {
+  product: ProductType;
+  page_url?: string;
+  referrer_url?: string;
+}
+```
+
+Generate to:
+- TypeScript interfaces
+- Swift structs
+- Kotlin data classes
+- JSON Schema for validation
+
+**Note:** This is a future integration opportunity that would unify type generation across all platforms.

@@ -22,6 +22,25 @@ Good instrumentation provides:
 - **Maintainable schema** - Easy to extend, hard to break
 - **Actionable insights** - Data that drives decisions
 
+## Choose Your Workflow
+
+Different starting points require different approaches:
+
+| Your Situation | Recommended Skill |
+|----------------|-------------------|
+| Building new feature, events not yet defined | `rudder-design-first-instrumentation` |
+| Existing product needs instrumentation | `rudder-code-first-instrumentation` |
+| Restructuring existing tracking | `rudder-code-first-instrumentation` |
+| General planning guidance | Continue with this skill |
+
+### Design-First vs Code-First
+
+**Design-First:** Start from product requirements → define events → define properties → implement code. Best for new features where events are part of product definition.
+
+**Code-First:** Start from existing code types → derive tracking plan → align with data governance. Best for existing products with domain types already defined.
+
+This skill covers the general planning process. For workflow-specific guidance, see the specialized skills above.
+
 ## The Planning Process
 
 ```
@@ -460,3 +479,8 @@ Before finalizing your instrumentation plan:
 - [ ] Categories organize events logically
 - [ ] Tracking plans exist for each source/platform
 - [ ] Validation passes: `rudder-cli validate -l ./`
+
+## References
+
+- `references/event-patterns.md` - Standard event taxonomy patterns and anti-patterns
+- `references/session-lifecycle-patterns.md` - When to use identify, group, and track calls

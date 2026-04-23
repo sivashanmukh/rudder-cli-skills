@@ -12,7 +12,7 @@
     {
       "name": "rudder-core",
       "source": "./plugins/rudder-core",
-      "description": "Cross-tool RudderStack domain knowledge: data catalog, tracking plans, instrumentation planning and debugging.",
+      "description": "Cross-tool RudderStack domain knowledge: data catalog, tracking plans, data graphs, instrumentation planning and debugging.",
       "version": "1.0.0",
       "author": {
         "name": "RudderStack"
@@ -21,7 +21,7 @@
       "repository": "https://github.com/rudderlabs/rudder-agent-skills",
       "license": "MIT",
       "category": "devtools",
-      "keywords": ["rudderstack", "instrumentation", "tracking-plan", "data-catalog"],
+      "keywords": ["rudderstack", "instrumentation", "tracking-plan", "data-catalog", "data-graph"],
       "tags": ["rudderstack", "domain"]
     },
     {
@@ -38,6 +38,36 @@
       "category": "devtools",
       "keywords": ["rudderstack", "rudder-cli", "rudder-typer", "cli", "devtools"],
       "tags": ["rudderstack", "cli"]
+    },
+    {
+      "name": "rudder-mcp",
+      "source": "./plugins/rudder-mcp",
+      "description": "Workflows for the rudder-mcp-server: connect AI/LLM agents to a RudderStack workspace and drive it via MCP tool calls.",
+      "version": "0.1.0",
+      "author": {
+        "name": "RudderStack"
+      },
+      "homepage": "https://github.com/rudderlabs/rudder-mcp-server",
+      "repository": "https://github.com/rudderlabs/rudder-agent-skills",
+      "license": "MIT",
+      "category": "devtools",
+      "keywords": ["rudderstack", "mcp", "rudder-mcp-server", "ai-agent"],
+      "tags": ["rudderstack", "mcp"]
+    },
+    {
+      "name": "rudder-terraform",
+      "source": "./plugins/rudder-terraform",
+      "description": "Workflows for managing RudderStack with the Terraform provider: provider setup, resource/data-source usage, and plan/apply cycles.",
+      "version": "0.1.0",
+      "author": {
+        "name": "RudderStack"
+      },
+      "homepage": "https://github.com/rudderlabs/terraform-provider-rudderstack",
+      "repository": "https://github.com/rudderlabs/rudder-agent-skills",
+      "license": "MIT",
+      "category": "devtools",
+      "keywords": ["rudderstack", "terraform", "iac", "hcl"],
+      "tags": ["rudderstack", "terraform"]
     }
   ]
 }

@@ -8,10 +8,10 @@ One marketplace (`rudder-agent-skills`) bundling four plugins. Install the ones 
 
 | Plugin | Status | Scope |
 |---|---|---|
-| [`rudder-core`](plugins/rudder-core/) | ✅ Available | Cross-tool domain knowledge: data catalog, tracking plans, instrumentation planning & debugging |
+| [`rudder-core`](plugins/rudder-core/) | ✅ Available | Cross-tool domain knowledge: data catalog, tracking plans, data graphs, instrumentation planning & debugging |
 | [`rudder-cli`](plugins/rudder-cli/) | ✅ Available | Workflows for [`rudder-cli`](https://github.com/rudderlabs/rudder-iac) and [`rudder-typer`](https://www.rudderstack.com/docs/features/ruddertyper/) |
-| `rudder-mcp` | 🚧 Coming soon | Workflows for [`rudder-mcp-server`](https://github.com/rudderlabs/rudder-mcp-server) — arrives on the `stubs` branch |
-| `rudder-terraform` | 🚧 Coming soon | Workflows for the [Terraform provider](https://github.com/rudderlabs/terraform-provider-rudderstack) — arrives on the `stubs` branch |
+| [`rudder-mcp`](plugins/rudder-mcp/) | ✅ Available | Workflows for [`rudder-mcp-server`](https://github.com/rudderlabs/rudder-mcp-server) |
+| [`rudder-terraform`](plugins/rudder-terraform/) | ✅ Available | Workflows for the [Terraform provider](https://github.com/rudderlabs/terraform-provider-rudderstack) |
 
 Most users drive RudderStack with more than one tool. Install `rudder-core` plus whichever tool plugins you use; the domain knowledge lives in `rudder-core` so it never duplicates across tool-specific plugins.
 
@@ -64,6 +64,7 @@ Pin to a release by appending `@v1.0.0` to the marketplace slug. Update later wi
 | Skill | When to use |
 |---|---|
 | `rudder-data-catalog` | Creating or managing events, properties, categories, or custom types |
+| `rudder-data-graphs` | Modeling entities, events, and relationships for Audiences |
 | `rudder-tracking-plans` | Creating tracking plans to group events for specific sources |
 | `rudder-instrumentation-planning` | Designing event taxonomy from scratch or restructuring |
 | `rudder-instrumentation-debugging` | Fixing validation errors, schema issues, or instrumentation problems |
@@ -76,6 +77,18 @@ Pin to a release by appending `@v1.0.0` to the marketplace slug. Update later wi
 | `rudder-import-and-evolve` | Importing existing RudderStack resources to CLI management |
 | `rudder-typer-workflow` | Generating type-safe SDKs (Swift/Kotlin) from tracking plans |
 | `rudder-transformations` | Creating, editing, or managing transformations and libraries |
+
+### `rudder-mcp`
+
+| Skill | When to use |
+|---|---|
+| `rudder-mcp-workflow` | Connecting AI/LLM agents to RudderStack via MCP server |
+
+### `rudder-terraform`
+
+| Skill | When to use |
+|---|---|
+| `rudder-terraform-workflow` | Managing RudderStack resources via Terraform provider |
 
 ## How skills work together
 
@@ -124,7 +137,13 @@ rudder-agent-skills/
     ├── rudder-core/
     │   ├── .claude-plugin/plugin.json
     │   └── skills/<skill>/SKILL.md
-    └── rudder-cli/
+    ├── rudder-cli/
+    │   ├── .claude-plugin/plugin.json
+    │   └── skills/<skill>/SKILL.md
+    ├── rudder-mcp/
+    │   ├── .claude-plugin/plugin.json
+    │   └── skills/<skill>/SKILL.md
+    └── rudder-terraform/
         ├── .claude-plugin/plugin.json
         └── skills/<skill>/SKILL.md
 ```

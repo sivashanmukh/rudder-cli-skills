@@ -45,3 +45,6 @@ coverage/
 tmp/
 temp/
 *.tmp
+
+# Superpowers design docs and plans (local working files)
+docs/superpowers/

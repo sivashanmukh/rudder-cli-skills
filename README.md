@@ -180,8 +180,17 @@ rudder-agent-skills/
 
 ## Prerequisites
 
-- [Claude Code](https://claude.ai/code) CLI installed
-- [`rudder-cli`](https://github.com/rudderlabs/rudder-iac) installed and authenticated (`rudder-cli auth login`) if you're using the `rudder-cli` plugin
+A compatible AI coding agent (Claude Code, Cursor, Cline, OpenCode, or any of the [40+ supported agents](https://github.com/vercel-labs/skills)).
+
+Each plugin includes a setup skill that guides you through installing and configuring tool-specific prerequisites:
+
+| Plugin | Setup Skill | What it installs |
+|--------|-------------|------------------|
+| `rudder-cli` | `/rudder-cli-setup` | Downloads `rudder-cli` binary, authenticates with RudderStack |
+| `rudder-mcp` | `/rudder-mcp-setup` | Configures Claude Code to connect to `rudder-mcp-server` |
+| `rudder-terraform` | `/rudder-terraform-setup` | Installs Terraform, configures the RudderStack provider |
+
+After installing a plugin, run its setup skill to get started. Use `/rudder-environment-check` to verify your full setup.
 
 ## Examples
 

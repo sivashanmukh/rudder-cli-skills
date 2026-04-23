@@ -17,6 +17,30 @@ Most users drive RudderStack with more than one tool. Install `rudder-core` plus
 
 ## Install (Claude Code)
 
+### Pre-release / Manual Installation
+
+Until this marketplace is published, install manually by cloning to the Claude Code plugins directory:
+
+```bash
+# Clone to the marketplaces directory (directory name must be "rudder-agent-skills")
+git clone https://github.com/sivashanmukh/rudder-cli-skills.git \
+  ~/.claude/plugins/marketplaces/rudder-agent-skills
+
+# Then in Claude Code, install the plugins:
+/plugin install rudder-core@rudder-agent-skills
+/plugin install rudder-cli@rudder-agent-skills
+```
+
+To update, pull the latest changes:
+
+```bash
+cd ~/.claude/plugins/marketplaces/rudder-agent-skills && git pull
+```
+
+### After Release
+
+Once published to GitHub under `rudderlabs/rudder-agent-skills`:
+
 ```bash
 /plugin marketplace add rudderlabs/rudder-agent-skills
 /plugin install rudder-core@rudder-agent-skills

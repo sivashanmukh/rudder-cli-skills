@@ -15,15 +15,41 @@ One marketplace (`rudder-agent-skills`) bundling four plugins. Install the ones 
 
 Most users drive RudderStack with more than one tool. Install `rudder-core` plus whichever tool plugins you use; the domain knowledge lives in `rudder-core` so it never duplicates across tool-specific plugins.
 
-## Install (Claude Code)
+## Installation
 
-### Pre-release / Manual Installation
+### Option 1: Skills CLI (Recommended)
+
+The [Skills CLI](https://github.com/vercel-labs/skills) works with 40+ coding agents including Claude Code, Cursor, Cline, OpenCode, and more.
+
+```bash
+# List available skills first
+npx skills add rudderlabs/rudder-agent-skills --list
+
+# Install specific skills interactively
+npx skills add rudderlabs/rudder-agent-skills
+
+# Install specific skills to Claude Code
+npx skills add rudderlabs/rudder-agent-skills -a claude-code --skill rudder-cli-workflow --skill rudder-data-catalog
+
+# Install all skills globally
+npx skills add rudderlabs/rudder-agent-skills -g --all
+```
+
+To update:
+
+```bash
+npx skills update
+```
+
+### Option 2: Claude Code Plugin System
+
+#### Pre-release / Manual Installation
 
 Until this marketplace is published, install manually by cloning to the Claude Code plugins directory:
 
 ```bash
 # Clone to the marketplaces directory (directory name must be "rudder-agent-skills")
-git clone https://github.com/sivashanmukh/rudder-cli-skills.git \
+git clone https://github.com/rudderlabs/rudder-agent-skills.git \
   ~/.claude/plugins/marketplaces/rudder-agent-skills
 
 # Then in Claude Code, install the plugins:
@@ -37,7 +63,7 @@ To update, pull the latest changes:
 cd ~/.claude/plugins/marketplaces/rudder-agent-skills && git pull
 ```
 
-### After Release
+#### After Release
 
 Once published to GitHub under `rudderlabs/rudder-agent-skills`:
 

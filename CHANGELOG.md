@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Vercel Skills CLI compatibility - skills can now be installed via `npx skills add rudderlabs/rudder-agent-skills` for 40+ coding agents
+- Updated installation documentation with Skills CLI instructions (pre-release and post-release)
 - Credential Security sections to skills handling authentication tokens
 - Handling External Content sections to skills processing API responses
 - `allowed-tools` declarations in skill frontmatter for shell command skills
